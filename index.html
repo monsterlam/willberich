@@ -23,12 +23,10 @@
 <body class="bg-slate-50 dark:bg-slate-950 p-4 flex justify-center">
     <div id="app" class="w-full max-w-md bg-white dark:bg-slate-900 min-h-[94vh] rounded-[48px] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800">
         
-        <!-- PAW STAMP OVERLAY -->
         <div v-if="showStamp" class="absolute inset-0 z-[100] flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-sm pointer-events-none">
             <div class="paw-stamp-animation text-[160px]">🐾</div>
         </div>
 
-        <!-- MEOW MODAL -->
         <div v-if="showModal" class="fixed inset-0 z-[110] flex items-center justify-center p-8 bg-black/40 backdrop-blur-md">
             <div class="bg-white dark:bg-slate-800 w-full rounded-[40px] p-8 text-center shadow-2xl border-b-8 border-emerald-500">
                 <div class="text-6xl mb-4">🐱</div>
@@ -37,7 +35,6 @@
             </div>
         </div>
 
-        <!-- HEADER SLIDE (WEEKLY PROGRESS) -->
         <header class="bg-slate-900 text-white p-6 pt-10 rounded-b-[50px] shadow-xl relative z-20 cursor-pointer" @click="showComparison = !showComparison">
             <div class="flex justify-between items-center mb-2 px-2">
                 <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Weekly Progress</span>
@@ -62,10 +59,8 @@
             </transition>
         </header>
 
-        <!-- MAIN CONTENT -->
         <main class="flex-1 overflow-y-auto p-6 pb-32">
             
-            <!-- VIEW: HOME (BUBBLE UI) -->
             <div v-if="view === 'home'" class="space-y-8">
                 <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-[32px] shadow-inner">
                     <input type="number" v-model="form.amount" class="w-full bg-transparent text-6xl font-black text-center outline-none dark:text-white" placeholder="0.00" inputmode="decimal">
@@ -100,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- VIEW: ANALYTICS -->
             <div v-if="view === 'report'" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">
@@ -127,11 +121,8 @@
                 </div>
             </div>
 
-            <!-- VIEW: SETTINGS -->
             <div v-if="view === 'settings'" class="space-y-4">
                 <div v-if="setSub === 'menu'" class="space-y-3">
-                    
-                    <!-- BUDGET ADJUSTMENT CARD -->
                     <div class="p-6 bg-emerald-50 dark:bg-emerald-900/20 rounded-[32px] border-2 border-emerald-100 dark:border-emerald-800/30 mb-2">
                         <p class="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 mb-2 tracking-widest text-center">Weekly Budget Goal</p>
                         <div class="flex items-center justify-center gap-3">
@@ -150,7 +141,6 @@
                     </div>
                 </div>
 
-                <!-- HISTORY SUBVIEW -->
                 <div v-if="setSub === 'history'" class="space-y-4">
                     <div class="flex items-center gap-2">
                         <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
@@ -187,8 +177,7 @@
                         </div>
                     </div>
                 </div>
-                
-                <!-- CARD & CAT SUBVIEWS -->
+
                 <div v-if="setSub === 'cards'" class="space-y-4">
                     <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
                     <div class="flex gap-2"><input v-model="newItem" class="flex-1 p-4 bg-white dark:bg-slate-800 border rounded-xl" placeholder="New Card..."><button @click="addCard" class="bg-black text-white px-4 rounded-xl">ADD</button></div>
@@ -197,16 +186,26 @@
 
                 <div v-if="setSub === 'cats'" class="space-y-4">
                     <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
-                    <div v-for="(c, i) in categories" :key="i" class="p-3 bg-slate-100 dark:bg-slate-800 rounded flex justify-between text-xs dark:text-white"><span>{{c.emoji}} {{c.name}}</span><button @click="categories.splice(i,1)">✕</button></div>
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border dark:border-slate-700 space-y-3">
+                        <p class="text-[10px] font-black text-slate-400 uppercase">Add New Category</p>
+                        <div class="flex gap-2">
+                            <input v-model="newCatEmoji" class="w-12 p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-center" placeholder="🐾">
+                            <input v-model="newCatName" class="flex-1 p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-xs" placeholder="Name...">
+                            <button @click="addCategory" class="bg-emerald-500 text-white px-4 rounded-xl font-black text-xs uppercase">Add</button>
+                        </div>
+                    </div>
+                    <div v-for="(c, i) in categories" :key="i" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex justify-between items-center text-xs">
+                        <span class="font-bold dark:text-white">{{c.emoji}} {{c.name}}</span>
+                        <button @click="categories.splice(i,1)" class="text-rose-500 font-black px-2">✕</button>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <!-- FOOTER -->
-        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t dark:border-slate-800 flex justify-around items-center py-6 px-4 pb-8 z-50">
-            <button @click="view='home'" :class="view==='home'?'scale-125 text-emerald-500':'opacity-20 grayscale'" class="text-3xl transition-all">🐾</button>
-            <button @click="view='report'; refreshChart()" :class="view==='report'?'scale-125 text-emerald-500':'opacity-20 grayscale'" class="text-3xl transition-all">📈</button>
-            <button @click="view='settings'; setSub='menu'; editingId=null" :class="view==='settings'?'scale-125 text-emerald-500':'opacity-20 grayscale'" class="text-3xl transition-all">⚙️</button>
+        <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t dark:border-slate-800 flex justify-around items-center py-6 px-4 pb-8 z-50">
+            <button @click="view='home'" :class="view==='home'?'scale-125 text-emerald-500 opacity-100':'opacity-20 grayscale'" class="text-3xl transition-all">🐾</button>
+            <button @click="view='report'; refreshChart()" :class="view==='report'?'scale-125 text-emerald-500 opacity-100':'opacity-20 grayscale'" class="text-3xl transition-all">📈</button>
+            <button @click="view='settings'; setSub='menu'; editingId=null" :class="view==='settings'?'scale-125 text-emerald-500 opacity-100':'opacity-20 grayscale'" class="text-3xl transition-all">⚙️</button>
         </nav>
     </div>
 
@@ -220,7 +219,8 @@
                 return {
                     view: 'home', setSub: 'menu', reportMode: 'cat', showStamp: false, showModal: false, showComparison: false,
                     form: { amount: '', card: '', category: '', remarks: '' },
-                    editingId: null, editForm: {}, searchQuery: '', newItem: '',
+                    editingId: null, editForm: {}, searchQuery: '', newItem: '', 
+                    newCatName: '', newCatEmoji: '🐾', // Wired for Categories
                     selY: now.getFullYear(), selM: now.getMonth() + 1,
                     weeklyBudget: parseFloat(localStorage.getItem('weeklyBudget')) || 2500,
                     chartFocusLabel: 'Monthly Total', chartFocusValue: '0',
@@ -231,6 +231,7 @@
                         {name:'bills', emoji:'📱'}, {name:'rent', emoji:'🏠'}, {name:'simba & tiger', emoji:'🐈'}
                     ],
                     quotes: ["Simba says: Purr-fect!", "Tiger is proud of you! 🐾", "Spend less, more treats! 🐟", "Meow-velous tracking!"],
+                    activeQuote: '',
                     records: JSON.parse(localStorage.getItem('records') || '[]')
                 }
             },
@@ -271,11 +272,6 @@
                 saveRecord() {
                     const amt = parseFloat(this.form.amount);
                     if (!amt || !this.form.card || !this.form.category) return alert("Missing info! 🐾");
-                    const catSpends = this.records.filter(r => r.category === this.form.category).map(r => parseFloat(r.amount));
-                    if (catSpends.length > 2) {
-                        const avg = catSpends.reduce((a,b) => a+b, 0) / catSpends.length;
-                        if (amt > avg * 3 && !confirm(`⚠️ Alert: This is 3x higher than usual! Proceed?`)) return;
-                    }
                     this.showStamp = true;
                     this.records.push({ id: Date.now(), ...this.form, amount: amt.toFixed(2), date: new Date().toISOString() });
                     setTimeout(() => {
@@ -310,6 +306,13 @@
                     });
                 },
                 addCard() { if(this.newItem) { this.cardOptions.push(this.newItem); this.newItem = ''; } },
+                addCategory() { 
+                    if(this.newCatName) { 
+                        this.categories.push({ name: this.newCatName, emoji: this.newCatEmoji }); 
+                        this.newCatName = ''; 
+                        this.newCatEmoji = '🐾'; 
+                    } 
+                },
                 deleteRecord(id) { if(confirm("Delete?")) this.records = this.records.filter(r => r.id !== id); },
                 formatDate(iso) { return new Date(iso).toLocaleString('zh-HK', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }); },
                 exportCSV() {
