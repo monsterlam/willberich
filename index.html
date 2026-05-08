@@ -12,6 +12,10 @@
     <script>tailwind.config = { darkMode: 'media' }</script>
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        /* Target all text to be dark slate in light mode and white in dark mode */
+        #app { color: #0f172a; }
+        .dark #app { color: #ffffff; }
+        
         .progress-bar { transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .paw-stamp-animation { animation: stamp-in 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes stamp-in { 0% { transform: scale(4); opacity: 0; rotate: -30deg; } 100% { transform: scale(1); opacity: 1; rotate: 0deg; } }
@@ -30,7 +34,7 @@
         <div v-if="showModal" class="fixed inset-0 z-[110] flex items-center justify-center p-8 bg-black/40 backdrop-blur-md">
             <div class="bg-white dark:bg-slate-800 w-full rounded-[40px] p-8 text-center shadow-2xl border-b-8 border-emerald-500">
                 <div class="text-6xl mb-4">🐱</div>
-                <p class="text-lg font-black dark:text-white italic">"{{ activeQuote }}"</p>
+                <p class="text-lg font-black italic text-slate-900 dark:text-white">"{{ activeQuote }}"</p>
                 <button @click="showModal = false" class="mt-6 w-full bg-slate-900 dark:bg-emerald-500 text-white p-4 rounded-2xl font-black uppercase text-xs">Purr-fect</button>
             </div>
         </div>
@@ -45,7 +49,7 @@
             </div>
             <div class="flex justify-center items-baseline gap-1">
                 <span class="text-xs font-bold text-slate-400">$</span>
-                <span class="text-5xl font-black tracking-tighter">{{ weeklyTotal }}</span>
+                <span class="text-5xl font-black tracking-tighter text-white">{{ weeklyTotal }}</span>
             </div>
             <p class="text-[9px] text-center mt-2 font-bold text-slate-500 uppercase tracking-widest">Tap to Compare ↕</p>
 
@@ -63,14 +67,14 @@
             
             <div v-if="view === 'home'" class="space-y-8">
                 <div class="bg-slate-100 dark:bg-slate-800 p-6 rounded-[32px] shadow-inner">
-                    <input type="number" v-model="form.amount" class="w-full bg-transparent text-6xl font-black text-center outline-none dark:text-white" placeholder="0.00" inputmode="decimal">
+                    <input type="number" v-model="form.amount" class="w-full bg-transparent text-6xl font-black text-center outline-none text-slate-900 dark:text-white" placeholder="0.00" inputmode="decimal">
                 </div>
 
                 <div class="space-y-3">
                     <p class="text-[10px] font-black uppercase text-slate-400 ml-2">Select Card</p>
                     <div class="grid grid-cols-2 gap-3">
                         <button v-for="c in cardOptions" :key="c" @click="form.card = c"
-                                :class="form.card === c ? 'bg-slate-900 text-white dark:bg-white dark:text-black scale-[1.02] shadow-lg border-transparent' : 'bg-white dark:bg-slate-800 text-slate-500 border dark:border-slate-700 border-slate-200'"
+                                :class="form.card === c ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 scale-[1.02] shadow-lg border-transparent' : 'bg-white dark:bg-slate-800 text-slate-500 border dark:border-slate-700 border-slate-200'"
                                 class="flex items-center justify-center gap-2 p-4 rounded-2xl text-xs font-black transition-all border-2">
                             <span>💳</span> {{ c }}
                         </button>
@@ -84,39 +88,39 @@
                                 :class="form.category === cat.name ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20' : 'border-transparent bg-white dark:bg-slate-800'"
                                 class="flex flex-col items-center justify-center p-4 rounded-[24px] border-2 shadow-sm transition-all">
                             <span class="text-3xl mb-1">{{ cat.emoji }}</span>
-                            <span class="text-[10px] font-black uppercase tracking-tighter">{{ cat.name }}</span>
+                            <span class="text-[10px] font-black uppercase tracking-tighter text-slate-900 dark:text-white">{{ cat.name }}</span>
                         </button>
                     </div>
                 </div>
 
                 <div class="space-y-4 pt-2">
-                    <input v-model="form.remarks" type="text" placeholder="Remarks" class="w-full p-4 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl text-xs dark:text-white outline-none">
-                    <button @click="saveRecord" class="w-full bg-slate-900 dark:bg-white dark:text-black text-white p-5 rounded-[28px] font-black text-sm shadow-xl active:scale-95">SAVE RECORD 🐾</button>
+                    <input v-model="form.remarks" type="text" placeholder="Remarks" class="w-full p-4 bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-2xl text-xs text-slate-900 dark:text-white outline-none">
+                    <button @click="saveRecord" class="w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 p-5 rounded-[28px] font-black text-sm shadow-xl active:scale-95">SAVE RECORD 🐾</button>
                 </div>
             </div>
 
             <div v-if="view === 'report'" class="space-y-6">
                 <div class="flex justify-between items-center">
                     <div class="flex bg-slate-200 dark:bg-slate-800 p-1 rounded-xl">
-                        <button @click="reportMode='cat'; refreshChart()" :class="reportMode==='cat'?'bg-white dark:bg-slate-700':'opacity-40'" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Category</button>
-                        <button @click="reportMode='card'; refreshChart()" :class="reportMode==='card'?'bg-white dark:bg-slate-700':'opacity-40'" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Card</button>
+                        <button @click="reportMode='cat'; refreshChart()" :class="reportMode==='cat'?'bg-white text-slate-900 dark:bg-slate-700 dark:text-white':'opacity-40'" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Category</button>
+                        <button @click="reportMode='card'; refreshChart()" :class="reportMode==='card'?'bg-white text-slate-900 dark:bg-slate-700 dark:text-white':'opacity-40'" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Card</button>
                     </div>
                     <div class="flex gap-1">
-                        <select v-model="selY" @change="refreshChart" class="bg-slate-200 dark:bg-slate-800 text-[10px] font-black rounded-lg px-2 py-1 outline-none"><option v-for="y in availableYears" :value="y">{{y}}</option></select>
-                        <select v-model="selM" @change="refreshChart" class="bg-slate-200 dark:bg-slate-800 text-[10px] font-black rounded-lg px-2 py-1 outline-none"><option v-for="m in 12" :value="m">{{m}}月</option></select>
+                        <select v-model="selY" @change="refreshChart" class="bg-slate-200 dark:bg-slate-800 text-[10px] font-black rounded-lg px-2 py-1 outline-none text-slate-900 dark:text-white"><option v-for="y in availableYears" :value="y">{{y}}</option></select>
+                        <select v-model="selM" @change="refreshChart" class="bg-slate-200 dark:bg-slate-800 text-[10px] font-black rounded-lg px-2 py-1 outline-none text-slate-900 dark:text-white"><option v-for="m in 12" :value="m">{{m}}月</option></select>
                     </div>
                 </div>
                 <div class="relative flex justify-center items-center py-4 bg-white dark:bg-slate-800 rounded-[40px] border dark:border-slate-700">
                     <canvas id="chartCanvas" width="250" height="250"></canvas>
                     <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                         <p class="text-[9px] font-black text-slate-400 uppercase">{{ chartFocusLabel }}</p>
-                        <p class="text-2xl font-black dark:text-white">${{ chartFocusValue }}</p>
+                        <p class="text-2xl font-black text-slate-900 dark:text-white">${{ chartFocusValue }}</p>
                     </div>
                 </div>
                 <div class="space-y-2">
                     <div v-for="item in activeSummary" :key="item.name" class="flex justify-between items-center p-4 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700">
-                        <div class="flex items-center gap-3"><span class="text-lg">{{ item.icon }}</span><span class="text-xs font-bold">{{ item.name }}</span></div>
-                        <span class="text-sm font-black">${{ item.total }}</span>
+                        <div class="flex items-center gap-3"><span class="text-lg">{{ item.icon }}</span><span class="text-xs font-bold text-slate-900 dark:text-white">{{ item.name }}</span></div>
+                        <span class="text-sm font-black text-slate-900 dark:text-white">${{ item.total }}</span>
                     </div>
                 </div>
             </div>
@@ -127,13 +131,13 @@
                         <p class="text-[10px] font-black uppercase text-emerald-600 dark:text-emerald-400 mb-2 tracking-widest text-center">Weekly Budget Goal</p>
                         <div class="flex items-center justify-center gap-3">
                             <span class="text-xl font-black text-emerald-600">$</span>
-                            <input type="number" v-model="weeklyBudget" @input="saveBudget" class="w-32 bg-transparent text-3xl font-black text-center outline-none border-b-2 border-emerald-200 dark:text-white" placeholder="2500">
+                            <input type="number" v-model="weeklyBudget" @input="saveBudget" class="w-32 bg-transparent text-3xl font-black text-center outline-none border-b-2 border-emerald-200 text-slate-900 dark:text-white" placeholder="2500">
                         </div>
                     </div>
 
-                    <button @click="setSub='history'" class="w-full p-5 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between font-black text-xs uppercase">📝 History <span>❯</span></button>
-                    <button @click="setSub='cards'" class="w-full p-5 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between font-black text-xs uppercase">💳 Cards <span>❯</span></button>
-                    <button @click="setSub='cats'" class="w-full p-5 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between font-black text-xs uppercase">🐾 Categories <span>❯</span></button>
+                    <button @click="setSub='history'" class="w-full p-5 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between font-black text-xs uppercase text-slate-900 dark:text-white">📝 History <span>❯</span></button>
+                    <button @click="setSub='cards'" class="w-full p-5 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between font-black text-xs uppercase text-slate-900 dark:text-white">💳 Cards <span>❯</span></button>
+                    <button @click="setSub='cats'" class="w-full p-5 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between font-black text-xs uppercase text-slate-900 dark:text-white">🐾 Categories <span>❯</span></button>
                     
                     <div class="pt-4 space-y-2">
                         <button @click="exportCSV" class="w-full p-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase">Export CSV</button>
@@ -144,14 +148,14 @@
                 <div v-if="setSub === 'history'" class="space-y-4">
                     <div class="flex items-center gap-2">
                         <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
-                        <input v-model="searchQuery" type="text" placeholder="Search..." class="flex-1 p-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-xs outline-none">
+                        <input v-model="searchQuery" type="text" placeholder="Search..." class="flex-1 p-3 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-xs outline-none text-slate-900 dark:text-white">
                     </div>
                     <div class="space-y-3">
                         <div v-for="r in filteredHistory" :key="r.id" class="p-4 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700">
                             <div v-if="editingId !== r.id">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <p class="text-sm font-black dark:text-white">${{ r.amount }}</p>
+                                        <p class="text-sm font-black text-slate-900 dark:text-white">${{ r.amount }}</p>
                                         <p class="text-[9px] font-bold text-slate-400 uppercase">{{ r.category }} • {{ r.card }}</p>
                                         <p v-if="r.remarks" class="text-[9px] text-slate-500 italic mt-1">"{{ r.remarks }}"</p>
                                     </div>
@@ -163,12 +167,12 @@
                                 <p class="text-[8px] text-slate-400 mt-2">{{ formatDate(r.date) }}</p>
                             </div>
                             <div v-else class="space-y-3">
-                                <input v-model="editForm.amount" type="number" class="w-full p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm font-black">
+                                <input v-model="editForm.amount" type="number" class="w-full p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-sm font-black text-slate-900 dark:text-white">
                                 <div class="grid grid-cols-2 gap-2">
-                                    <select v-model="editForm.card" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-[10px]"><option v-for="c in cardOptions" :value="c">{{c}}</option></select>
-                                    <select v-model="editForm.category" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-[10px]"><option v-for="cat in categories" :value="cat.name">{{cat.name}}</option></select>
+                                    <select v-model="editForm.card" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-[10px] text-slate-900 dark:text-white"><option v-for="c in cardOptions" :value="c">{{c}}</option></select>
+                                    <select v-model="editForm.category" class="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-[10px] text-slate-900 dark:text-white"><option v-for="cat in categories" :value="cat.name">{{cat.name}}</option></select>
                                 </div>
-                                <input v-model="editForm.remarks" type="text" class="w-full p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs">
+                                <input v-model="editForm.remarks" type="text" class="w-full p-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs text-slate-900 dark:text-white">
                                 <div class="flex gap-2">
                                     <button @click="saveEdit" class="flex-1 bg-emerald-500 text-white p-2 rounded-lg text-[10px] font-black">SAVE</button>
                                     <button @click="editingId = null" class="flex-1 bg-slate-300 p-2 rounded-lg text-[10px] font-black text-slate-700">CANCEL</button>
@@ -180,8 +184,14 @@
 
                 <div v-if="setSub === 'cards'" class="space-y-4">
                     <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
-                    <div class="flex gap-2"><input v-model="newItem" class="flex-1 p-4 bg-white dark:bg-slate-800 border rounded-xl" placeholder="New Card..."><button @click="addCard" class="bg-black text-white px-4 rounded-xl">ADD</button></div>
-                    <div v-for="(c, i) in cardOptions" :key="i" class="p-3 bg-slate-100 dark:bg-slate-800 rounded flex justify-between text-xs dark:text-white"><span>{{c}}</span><button @click="cardOptions.splice(i,1)">✕</button></div>
+                    <div class="flex gap-2">
+                        <input v-model="newItem" class="flex-1 p-4 bg-white dark:bg-slate-800 border rounded-xl text-slate-900 dark:text-white" placeholder="New Card...">
+                        <button @click="addCard" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 rounded-xl font-black text-xs uppercase">ADD</button>
+                    </div>
+                    <div v-for="(c, i) in cardOptions" :key="i" class="p-3 bg-slate-100 dark:bg-slate-800 rounded flex justify-between text-xs text-slate-900 dark:text-white">
+                        <span>{{c}}</span>
+                        <button @click="cardOptions.splice(i,1)" class="text-rose-500">✕</button>
+                    </div>
                 </div>
 
                 <div v-if="setSub === 'cats'" class="space-y-4">
@@ -189,13 +199,13 @@
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-2xl border dark:border-slate-700 space-y-3">
                         <p class="text-[10px] font-black text-slate-400 uppercase">Add New Category</p>
                         <div class="flex gap-2">
-                            <input v-model="newCatEmoji" class="w-12 p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-center" placeholder="🐾">
-                            <input v-model="newCatName" class="flex-1 p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-xs" placeholder="Name...">
+                            <input v-model="newCatEmoji" class="w-12 p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-center text-slate-900 dark:text-white" placeholder="🐾">
+                            <input v-model="newCatName" class="flex-1 p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-xs text-slate-900 dark:text-white" placeholder="Name...">
                             <button @click="addCategory" class="bg-emerald-500 text-white px-4 rounded-xl font-black text-xs uppercase">Add</button>
                         </div>
                     </div>
                     <div v-for="(c, i) in categories" :key="i" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex justify-between items-center text-xs">
-                        <span class="font-bold dark:text-white">{{c.emoji}} {{c.name}}</span>
+                        <span class="font-bold text-slate-900 dark:text-white">{{c.emoji}} {{c.name}}</span>
                         <button @click="categories.splice(i,1)" class="text-rose-500 font-black px-2">✕</button>
                     </div>
                 </div>
@@ -220,7 +230,7 @@
                     view: 'home', setSub: 'menu', reportMode: 'cat', showStamp: false, showModal: false, showComparison: false,
                     form: { amount: '', card: '', category: '', remarks: '' },
                     editingId: null, editForm: {}, searchQuery: '', newItem: '', 
-                    newCatName: '', newCatEmoji: '🐾', // Wired for Categories
+                    newCatName: '', newCatEmoji: '🐾',
                     selY: now.getFullYear(), selM: now.getMonth() + 1,
                     weeklyBudget: parseFloat(localStorage.getItem('weeklyBudget')) || 2500,
                     chartFocusLabel: 'Monthly Total', chartFocusValue: '0',
