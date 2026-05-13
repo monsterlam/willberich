@@ -23,7 +23,7 @@
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 p-4 flex justify-center">
-    <div id="app" class="w-full max-w-md bg-white dark:bg-slate-900 min-h-[94vh] rounded-[48px] shadow-2xl overflow-hidden flex flex-col relative border border-slate-200 dark:border-slate-800">
+    <div id="app" class="w-full max-w-md bg-white dark:bg-slate-900 min-h-[94vh] rounded-[48px] shadow-2xl relative border border-slate-200 dark:border-slate-800">
         
         <div v-if="showStamp" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm pointer-events-none">
             <div class="paw-stamp-animation text-[160px]">🐾</div>
@@ -37,11 +37,11 @@
             </div>
         </div>
 
-        <header class="bg-slate-900 text-white p-6 pt-10 rounded-b-[50px] shadow-xl relative z-20">
-            <div class="flex justify-between items-center mb-2 px-2">
-                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Monthly Progress</span>
-                <span class="text-[10px] font-black text-emerald-400">{{ ((monthlyExpTotal/monthlyBudget)*100).toFixed(0) }}%</span>
-            </div>
+        <header class="sticky top-0 z-50 bg-slate-900 text-white p-6 pt-10 rounded-b-[50px] shadow-xl">
+    <div class="flex justify-between items-center mb-2 px-2">
+        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Monthly Progress</span>
+        <span class="text-[10px] font-black text-emerald-400">{{ ((monthlyExpTotal/monthlyBudget)*100).toFixed(0) }}%</span>
+    </div>
             <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-4">
                 <div class="progress-bar h-full bg-emerald-400" :style="{ width: Math.min((monthlyExpTotal/monthlyBudget)*100, 100) + '%' }"></div>
             </div>
@@ -51,7 +51,7 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-6 pb-32 no-scrollbar">
+        <main class="p-6 pb-32">
             
             <div v-if="view === 'home'" class="space-y-6">
                 <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
