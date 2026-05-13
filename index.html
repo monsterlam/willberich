@@ -268,7 +268,30 @@
                     <div class="flex gap-2"><input v-model="newItem" class="flex-1 p-4 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-slate-900 dark:text-white" placeholder="New Card..."><button @click="addCard" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 rounded-xl font-black text-xs">ADD</button></div>
                     <div v-for="(c, i) in cardOptions" :key="i" class="p-3 bg-slate-100 dark:bg-slate-800 rounded flex justify-between text-xs text-slate-900 dark:text-white"><span>{{c}}</span><button @click="cardOptions.splice(i,1)">✕</button></div>
                 </div>
+
+                <div v-if="setSub === 'cats'" class="space-y-4">
+                    <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
+                    <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl space-y-3">
+                        <div class="flex gap-2">
+                            <input v-model="newCatEmoji" class="w-12 p-3 text-center bg-white dark:bg-slate-700 rounded-xl" placeholder="🐾">
+                            <input v-model="newCatName" class="flex-1 p-3 text-xs bg-white dark:bg-slate-700 rounded-xl outline-none text-slate-900 dark:text-white" placeholder="Category Name">
+                        </div>
+                        <button @click="addCategory" class="w-full py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase">Add Category 🐾</button>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div v-for="(cat, i) in categories" :key="i" class="p-3 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between items-center shadow-sm">
+                            <span class="text-xs font-bold text-slate-900 dark:text-white">{{cat.emoji}} {{cat.name}}</span>
+                            <button @click="categories.splice(i,1)" class="text-rose-400 p-2">✕</button>
+                        </div>
+                    </div>
                 </div>
+
+                <div v-if="setSub === 'quotes'" class="space-y-4">
+                    <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
+                    <div class="flex gap-2"><input v-model="newQuoteText" class="flex-1 p-4 bg-slate-100 dark:bg-slate-800 border-none rounded-xl text-slate-900 dark:text-white text-xs" placeholder="Add new meow quote..."><button @click="addQuote" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 rounded-xl font-black text-xs">ADD</button></div>
+                    <div v-for="(q, i) in quotes" :key="i" class="p-4 bg-slate-100 dark:bg-slate-800 rounded-2xl flex justify-between items-center text-xs text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700 italic"><span class="flex-1 pr-4">"{{q}}"</span><button @click="quotes.splice(i,1)" class="text-rose-400 font-black">✕</button></div>
+                </div>
+            </div>
         </main>
 
         <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-t dark:border-slate-800 flex justify-around items-center py-6 pb-8 z-50">
@@ -351,7 +374,9 @@
             },
             watch: {
                 records: { handler(v) { localStorage.setItem('records', JSON.stringify(v)) }, deep: true },
-                quickLogs: { handler(v) { localStorage.setItem('quickLogs', JSON.stringify(v)) }, deep: true }
+                quickLogs: { handler(v) { localStorage.setItem('quickLogs', JSON.stringify(v)) }, deep: true },
+                categories: { handler(v) { localStorage.setItem('cats', JSON.stringify(v)) }, deep: true },
+                quotes: { handler(v) { localStorage.setItem('meowQuotes', JSON.stringify(v)) }, deep: true }
             },
             methods: {
                 saveRecord() {
@@ -407,6 +432,8 @@
                     });
                 },
                 addCard() { if(this.newItem) { this.cardOptions.push(this.newItem); this.newItem = ''; } },
+                addCategory() { if(this.newCatName) { this.categories.push({ name: this.newCatName.toLowerCase(), emoji: this.newCatEmoji || '🐾' }); this.newCatName = ''; this.newCatEmoji = '🐾'; } },
+                addQuote() { if(this.newQuoteText) { this.quotes.push(this.newQuoteText); this.newQuoteText = ''; } },
                 saveBudget() { localStorage.setItem('monthlyBudget', this.monthlyBudget); },
                 exportCSV() {
                     let csv = "Date,Type,Amount,Card,Category,Remarks\n" + this.records.map(r => `"${r.date}","${r.type}",${r.amount},"${r.card}","${r.category}","${r.remarks||''}"`).join("\n");
