@@ -171,8 +171,8 @@
                         </div>
                     </div>
                     
-                    <div class="relative flex flex-col justify-center items-center py-4 bg-white dark:bg-slate-800 rounded-[40px] border dark:border-slate-700">
-                        <canvas id="chartCanvas" width="250" height="250"></canvas>
+                    <div @click="drillDownFilter = null" class="relative flex flex-col justify-center items-center py-4 bg-white dark:bg-slate-800 rounded-[40px] border dark:border-slate-700 cursor-pointer">
+                        <canvas id="chartCanvas" width="250" height="250" @click.stop></canvas>
                         <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
                             <p class="text-[9px] font-black text-slate-400 dark:text-slate-300 uppercase">{{ drillDownFilter || 'Expenses' }}</p>
                             <p class="text-2xl font-black text-slate-900 dark:text-white">${{ drillDownFilter ? drillDownTotal : chartFocusValue }}</p>
@@ -482,7 +482,14 @@
                                 cutout: '75%', 
                                 plugins: { legend: { display: false } },
                                 onClick: (evt, elements) => {
-                                    if (elements.length > 0) this.drillDownFilter = window.myChart.data.labels[elements[0].index];
+                                    // If a slice is clicked, drill down
+                                    if (elements.length > 0) {
+                                        this.drillDownFilter = window.myChart.data.labels[elements[0].index];
+                                    } 
+                                    // IF NOTHING IS CLICKED (the hole), reset to total
+                                    else {
+                                        this.drillDownFilter = null;
+                                    }
                                 }
                             }
                         });
