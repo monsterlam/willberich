@@ -20,10 +20,11 @@
         ::-webkit-scrollbar { display: none; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .app-scroll-container { max-height: calc(94vh - 140px); overflow-y: auto; }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 p-4 flex justify-center">
-    <div id="app" class="w-full max-w-md bg-white dark:bg-slate-900 min-h-[94vh] rounded-[48px] shadow-2xl relative border border-slate-200 dark:border-slate-800">
+    <div id="app" class="w-full max-w-md bg-white dark:bg-slate-900 h-[94vh] flex flex-col overflow-hidden rounded-[48px] shadow-2xl relative border border-slate-200 dark:border-slate-800">
         
         <div v-if="showStamp" class="absolute inset-0 z-[100] flex items-center justify-center bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm pointer-events-none">
             <div class="paw-stamp-animation text-[160px]">🐾</div>
@@ -37,11 +38,58 @@
             </div>
         </div>
 
+        <div v-if="showEditModal" class="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-black/60 backdrop-blur-md">
+            <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-[32px] p-6 shadow-2xl border-t-8 border-amber-500 max-h-[85vh] overflow-y-auto no-scrollbar">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-sm font-black uppercase text-slate-900 dark:text-white">Edit Record 🐾</h3>
+                    <button @click="showEditModal = false" class="text-slate-400 font-black">✕</button>
+                </div>
+
+                <div class="space-y-4 text-left" v-if="editForm">
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Amount</label>
+                        <input type="number" v-model="editForm.amount" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Category</label>
+                        <select v-model="editForm.category" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none">
+                            <option v-for="cat in (editForm.type === 'expense' ? categories : incomeCategories)" :value="cat.name">
+                                {{ cat.emoji }} {{ cat.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div v-if="editForm.type === 'expense'">
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Card Choice</label>
+                        <select v-model="editForm.card" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none">
+                            <option v-for="c in cardOptions" :value="c">💳 {{ c }}</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Date & Time</label>
+                        <input type="datetime-local" v-model="editForm.date" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-xl font-bold text-slate-900 dark:text-white outline-none">
+                    </div>
+
+                    <div>
+                        <label class="text-[10px] font-black uppercase text-slate-400 block mb-1">Remarks</label>
+                        <input type="text" v-model="editForm.remarks" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-xl text-slate-900 dark:text-white outline-none">
+                    </div>
+
+                    <div class="pt-2 flex gap-2">
+                        <button @click="showEditModal = false" class="flex-1 p-3 bg-slate-100 dark:bg-slate-700 text-slate-500 rounded-xl font-black uppercase text-xs">Cancel</button>
+                        <button @click="updateRecord" class="flex-1 p-3 bg-amber-500 text-white rounded-xl font-black uppercase text-xs shadow-md active:scale-95 transition-transform">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <header class="sticky top-0 z-50 bg-slate-900 text-white p-6 pt-10 rounded-b-[50px] shadow-xl">
-    <div class="flex justify-between items-center mb-2 px-2">
-        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Monthly Progress</span>
-        <span class="text-[10px] font-black text-emerald-400">{{ ((monthlyExpTotal/monthlyBudget)*100).toFixed(0) }}%</span>
-    </div>
+            <div class="flex justify-between items-center mb-2 px-2">
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Monthly Progress</span>
+                <span class="text-[10px] font-black text-emerald-400">{{ ((monthlyExpTotal/monthlyBudget)*100).toFixed(0) }}%</span>
+            </div>
             <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mb-4">
                 <div class="progress-bar h-full bg-emerald-400" :style="{ width: Math.min((monthlyExpTotal/monthlyBudget)*100, 100) + '%' }"></div>
             </div>
@@ -51,7 +99,7 @@
             </div>
         </header>
 
-        <main class="p-6 pb-32">
+        <main class="flex-1 p-6 pb-32 app-scroll-container no-scrollbar">
             
             <div v-if="view === 'home'" class="space-y-6">
                 <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
@@ -194,42 +242,61 @@
                     </div>
                 </div>
 
-                <div v-if="setSub === 'history'" class="flex flex-col h-full -mt-6">
-                    <div class="sticky top-0 z-40 bg-white dark:bg-slate-900 pt-6 pb-4 space-y-3">
-                        <div class="flex justify-between items-center">
-                            <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase">❮ Back</button>
-                            <div class="flex gap-2">
-                                <select v-model="selY" class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-[10px] font-black rounded-lg px-2 py-1 outline-none border dark:border-slate-700"><option v-for="y in availableYears" :value="y">{{y}}</option></select>
-                                <select v-model="selM" class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-[10px] font-black rounded-lg px-2 py-1 outline-none border dark:border-slate-700"><option v-for="m in 12" :value="m">{{m}}月</option></select>
-                            </div>
-                        </div>
-                        <div class="relative">
-                            <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-sm">🔍</span>
-                            <input v-model="searchQuery" type="text" placeholder="Search..." class="w-full pl-10 pr-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white outline-none">
-                        </div>
-                    </div>
+                <div v-if="setSub === 'history'" class="block h-full">
+    <div class="sticky top-0 z-40 bg-white dark:bg-slate-900 pb-3 space-y-3 border-b border-slate-100 dark:border-slate-800/80 before:content-[''] before:absolute before:-top-20 before:left-0 before:right-0 before:h-20 before:bg-white dark:before:bg-slate-900 before:-z-10">
+        
+        <div class="flex justify-between items-center pt-2">
+            <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 dark:text-slate-300 uppercase flex items-center gap-1 active:scale-95 transition-transform">
+                ❮ Back
+            </button>
+            <div class="flex gap-2">
+                <select v-model="selY" class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-[10px] font-black rounded-lg px-2 py-1.5 outline-none border dark:border-slate-700">
+                    <option v-for="y in availableYears" :value="y">{{y}}</option>
+                </select>
+                <select v-model="selM" class="bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white text-[10px] font-black rounded-lg px-2 py-1.5 outline-none border dark:border-slate-700">
+                    <option v-for="m in 12" :value="m">{{m}}月</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-sm">🔍</span>
+            <input v-model="searchQuery" type="text" placeholder="Search transactions..." class="w-full pl-10 pr-4 py-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-bold text-slate-900 dark:text-white outline-none border border-transparent focus:border-emerald-500/30 transition-all">
+        </div>
+    </div>
 
-                    <div class="space-y-6 pb-10">
-                        <div v-for="(group, date) in groupedHistory" :key="date" class="space-y-3">
-                            <div class="sticky top-[135px] z-30 py-2 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800/50">
-                                <span class="text-[9px] font-black uppercase text-emerald-500 bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1 rounded-full">
-                                    {{ formatDateHeader(date) }}
-                                </span>
-                            </div>
-                            <div v-for="r in group" :key="r.id" class="p-4 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between items-center shadow-sm">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2">
-                                        <p class="text-sm font-black" :class="r.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white'">{{ r.type === 'income' ? '+' : '-' }}${{ r.amount }}</p>
-                                        <span class="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 uppercase">{{ new Date(r.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}</span>
-                                    </div>
-                                    <p class="text-[9px] font-bold text-slate-400 uppercase">{{ r.category }} • {{ r.card }} <span v-if="r.remarks" class="italic normal-case text-slate-300"> — {{r.remarks}}</span></p>
-                                </div>
-                                <button @click="deleteRecord(r.id)" class="text-rose-400 font-black px-2">✕</button>
-                            </div>
-                        </div>
+    <div class="space-y-6 pt-4 pb-10">
+        <div v-for="(group, date) in groupedHistory" :key="date" class="space-y-3">
+            <div class="sticky top-[102px] z-30 py-2 bg-white dark:bg-slate-900">
+                <span class="text-[9px] font-black uppercase text-emerald-500 bg-emerald-50 dark:bg-emerald-900/40 px-3 py-1 rounded-full shadow-sm border border-emerald-100/50 dark:border-emerald-800/30">
+                    {{ formatDateHeader(date) }}
+                </span>
+            </div>
+            
+            <div v-for="r in group" :key="r.id" @click="openEdit(r)" class="p-4 bg-white dark:bg-slate-800 rounded-2xl border dark:border-slate-700 flex justify-between items-center shadow-sm cursor-pointer active:scale-98 transition-transform">
+                <div class="flex-1">
+                    <div class="flex items-center gap-2">
+                        <p class="text-sm font-black" :class="r.type === 'income' ? 'text-emerald-500' : 'text-slate-900 dark:text-white'">
+                            {{ r.type === 'income' ? '+' : '-' }}${{ r.amount }}
+                        </p>
+                        <span class="text-[8px] font-black px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-400 uppercase">
+                            {{ new Date(r.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }}
+                        </span>
                     </div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase">
+                        {{ r.category }} • {{ r.card }} 
+                        <span v-if="r.remarks" class="italic normal-case text-slate-400 dark:text-slate-500"> — {{r.remarks}}</span>
+                    </p>
                 </div>
-
+                <button @click.stop="deleteRecord(r.id)" class="text-rose-400 font-black px-2 relative z-10 active:scale-125 transition-transform">✕</button>
+            </div>
+        </div>
+        
+        <div v-if="Object.keys(groupedHistory).length === 0" class="text-center py-12 text-slate-400 dark:text-slate-600 text-xs font-bold">
+            No meow-transactions found 🐾
+        </div>
+    </div>
+</div>
                 <div v-if="setSub === 'quicklog'" class="space-y-4">
                     <button @click="setSub='menu'" class="text-[10px] font-black text-slate-400 uppercase">❮ Back</button>
                     <div class="p-4 bg-slate-100 dark:bg-slate-800 rounded-[24px] space-y-3">
@@ -294,6 +361,8 @@
                 const now = new Date();
                 return {
                     view: 'home', setSub: 'menu', reportView: 'chart', reportMode: 'cat', showStamp: false, showModal: false,
+                    showEditModal: false,
+                    editForm: null,
                     form: { type: 'expense', amount: '', card: '', category: '', remarks: '' },
                     newItem: '', newCatName: '', newCatEmoji: '🐾', newQuoteText: '',
                     selY: now.getFullYear(), selM: now.getMonth() + 1,
@@ -427,7 +496,26 @@
                     let csv = "Date,Type,Amount,Card,Category,Remarks\n" + this.records.map(r => `"${r.date}","${r.type}",${r.amount},"${r.card}","${r.category}","${r.remarks||''}"`).join("\n");
                     const link = document.createElement('a'); link.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv); link.download = 'meow_tracker.csv'; link.click();
                 },
-                resetAll() { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } }
+                resetAll() { if(confirm("Erase all data?")) { localStorage.clear(); location.reload(); } },
+                
+                // FIXED TIMEZONE OFFSET CONVERSION HERE
+                openEdit(record) {
+                    this.editForm = { ...record };
+                    let localTime = new Date(record.date).getTime() - (new Date().getTimezoneOffset() * 60000);
+                    this.editForm.date = new Date(localTime).toISOString().slice(0, 16);
+                    this.showEditModal = true;
+                },
+                updateRecord() {
+                    const index = this.records.findIndex(r => r.id === this.editForm.id);
+                    if (index !== -1) {
+                        this.editForm.date = new Date(this.editForm.date).toISOString();
+                        this.editForm.amount = parseFloat(this.editForm.amount).toFixed(2);
+                        this.records[index] = { ...this.editForm };
+                        this.showEditModal = false;
+                        this.editForm = null;
+                        this.refreshChart();
+                    }
+                }
             },
             mounted() { this.refreshChart(); }
         }).mount('#app');
